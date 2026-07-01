@@ -42,11 +42,11 @@ class GameObject:
         self.body_color = body_color
 
     def draw(self):
-        """Абстрактный клас для отрисовки."""
+        """Абстрактный класc для рисования клетки."""
         raise NotImplementedError('Ошибка! Метод отрисовки не реализован.')
 
     def draw_rect(self, position):
-        """Отрисовка клетки."""
+        """Рисование клетки."""
         rect = pg.Rect(position, (GRID_SIZE, GRID_SIZE))
         pg.draw.rect(screen, self.body_color, rect)
         pg.draw.rect(screen, BORDER_COLOR, rect, 1)
