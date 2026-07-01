@@ -42,19 +42,28 @@ class GameObject:
         self.body_color = body_color
 
     def draw(self):
-        """Отрисовка объекта базового класса."""
-        rect = pg.Rect(self.position, (GRID_SIZE, GRID_SIZE))
+        """Абстрактный клас для отрисовки."""
+        raise NotImplementedError('Ошибка! Метод отрисовки не реализован.')
+
+    def draw_rect(self, position):
+        """Отрисовка клетки."""
+        rect = pg.Rect(position, (GRID_SIZE, GRID_SIZE))
         pg.draw.rect(screen, self.body_color, rect)
         pg.draw.rect(screen, BORDER_COLOR, rect, 1)
+
+    def delete_rect(self, position):
+        """Закрашивание клетки."""
+        rect_for_del = pg.Rect(position, (GRID_SIZE, GRID_SIZE))
+        pg.draw.rect(screen, BOARD_BACKGROUND_COLOR, rect_for_del)
 
 
 class Apple(GameObject):
     """Класс объекта яблоко."""
 
-    def __init__(self, body_color=COMMON_COLOR, prohibition=None):
+    def __init__(self, body_color=APPLE_COLOR, prohibition=None):
+        super().__init__(body_color)
         if prohibition is None:
             prohibition = [MIDDLE_SCREEN]
-        super().__init__(body_color)
         self.randomize_position(prohibition)
 
     def randomize_position(self, prohibition):
@@ -67,19 +76,19 @@ class Apple(GameObject):
 
     def draw(self):
         """Отрисовка объекта яблоко."""
-        super().draw()
+        super().draw_rect(self.position)
 
 
 class Snake(GameObject):
     """Класс объекта змейка."""
 
-    def __init__(self, body_color=COMMON_COLOR):
+    def __init__(self, body_color=SNAKE_COLOR):
         super().__init__(body_color)
         self.reset()
 
     def reset(self):
         """Сбрасывает змейку в начальное состояние."""
-        self.positions = [MIDDLE_SCREEN]
+        self.positions = [self.position]
         self.length = 1
         self.direction = RIGHT
         self.next_direction = None
@@ -115,25 +124,20 @@ class Snake(GameObject):
         """Отрисовка объекта змейки."""
         # Затирание последнего сегмента
         if self.last:
-            last_rect = pg.Rect(self.last, (GRID_SIZE, GRID_SIZE))
-            pg.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
+            self.delete_rect(self.last)
 
         # Отрисовка головы змейки
-        head_rect = pg.Rect(self.positions[0], (GRID_SIZE, GRID_SIZE))
-        pg.draw.rect(screen, self.body_color, head_rect)
-        pg.draw.rect(screen, BORDER_COLOR, head_rect, 1)
+        self.draw_rect(self.positions[0])
 
 
 def main():
     """Создание основного тела игры."""
-    # Инициализация PyGame:
     pg.init()
     apple = Apple(APPLE_COLOR)
 
     snake = Snake(SNAKE_COLOR)
 
     while True:
-        # Бесконечный цикл игры
         clock.tick(SPEED)
         handle_keys(snake)
         snake.update_direction()
